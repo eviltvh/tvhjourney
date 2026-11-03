@@ -1,0 +1,16 @@
+[Unit]
+Description=THE TVH JOURNEY - bot de Telegram
+After=network-online.target jellyfin.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Usuario y ruta de la laptop
+User=tvhin
+WorkingDirectory=/home/tvhin/tvh-journey
+ExecStart=/home/tvhin/tvh-journey/.venv/bin/python bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
