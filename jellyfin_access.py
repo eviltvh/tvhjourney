@@ -76,10 +76,29 @@ async def check() -> str:
     """Valida conexión, API key y bibliotecas."""
     info = await _req("GET", "/System/Info")
     await _library_ids()
+    qc = "activo" if await quickconnect_enabled() else "APAGADO (actívalo en el panel)"
     return (
         f"{info.get('ServerName')} · Jellyfin {info.get('Version')} · "
-        f"bibliotecas: {', '.join(config.JELLYFIN_LIBRARIES)}"
+        f"bibliotecas: {', '.join(config.JELLYFIN_LIBRARIES)} · Quick Connect {qc}"
     )
+
+
+async def quickconnect_enabled() -> bool:
+    try:
+        return bool(await _req("GET", "/QuickConnect/Enabled"))
+    except JellyfinError:
+        return False
+
+
+async def authorize_tv(user_id: str, code: str) -> bool:
+    """Aprueba el código Quick Connect que muestra la tele, a nombre de este usuario."""
+    s = await _http()
+    async with s.post("QuickConnect/Authorize", params={"code": code, "userId": user_id}) as r:
+        if r.status in (200, 204):
+            return True
+        if r.status in (400, 404):  # código inválido o expirado
+            return False
+        raise JellyfinError(f"QuickConnect → {r.status}: {(await r.text())[:200]}")
 
 
 def new_password(length: int = 12) -> str:

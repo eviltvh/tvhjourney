@@ -20,8 +20,17 @@ def _bool(value: str) -> bool:
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 ADMIN_IDS = _ints(os.getenv("ADMIN_IDS", ""))
 
-# Precio mensual en Telegram Stars (máx. 10000 para suscripciones)
-PRICE_STARS = int(os.getenv("PRICE_STARS", "250"))
+# Mercado Pago
+# Tus integraciones → tu app → Credenciales de producción → Access Token (APP_USR-...)
+MP_ACCESS_TOKEN = os.environ["MP_ACCESS_TOKEN"]
+MP_API_URL = os.getenv("MP_API_URL", "https://api.mercadopago.com").rstrip("/")
+# Precio del pase en pesos y cuántos días da
+PRICE_MXN = float(os.getenv("PRICE_MXN", "79"))
+PASS_DAYS = int(os.getenv("PASS_DAYS", "30"))
+# Texto que aparece en el estado de cuenta de la tarjeta (máx. ~13 caracteres)
+STATEMENT_DESCRIPTOR = os.getenv("STATEMENT_DESCRIPTOR", "TVHJOURNEY")
+# Días que dura la ficha de OXXO / el link de pago
+CHECKOUT_DAYS = int(os.getenv("CHECKOUT_DAYS", "3"))
 
 # Jellyfin
 # URL que usa el bot para hablar con Jellyfin (normalmente local)
@@ -36,15 +45,14 @@ MAX_SESSIONS = int(os.getenv("MAX_SESSIONS", "2"))
 # ¿Permitir descargar los videos?
 ALLOW_DOWNLOADS = _bool(os.getenv("ALLOW_DOWNLOADS", "false"))
 
-# Horas de gracia después de la expiración antes de deshabilitar (por si la renovación llega tarde)
+# Días antes del vencimiento en que se manda el recordatorio para renovar
+REMIND_DAYS = int(os.getenv("REMIND_DAYS", "3"))
+# Horas de gracia después de vencer antes de deshabilitar la cuenta
 GRACE_HOURS = int(os.getenv("GRACE_HOURS", "24"))
-# Cada cuántos minutos revisa suscripciones vencidas
-CHECK_EVERY_MIN = int(os.getenv("CHECK_EVERY_MIN", "15"))
+# Cada cuántos segundos revisa pagos recientes en Mercado Pago
+POLL_SECONDS = int(os.getenv("POLL_SECONDS", "60"))
 
 DB_PATH = os.getenv("DB_PATH", "tvh_journey.db")
 
-# Telegram solo acepta 30 días exactos para suscripciones
-SUBSCRIPTION_PERIOD = 2592000
-
-if not 1 <= PRICE_STARS <= 10000:
-    raise ValueError("PRICE_STARS debe estar entre 1 y 10000")
+if PRICE_MXN < 10:
+    raise ValueError("PRICE_MXN debe ser al menos 10 (mínimo de OXXO)")
